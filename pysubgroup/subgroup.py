@@ -234,6 +234,31 @@ class Subgroup():
     def calculate_statistics(self, data, weighting_attribute=None):
         self.target.calculate_statistics(self, data, weighting_attribute)
 
+    def to_dict(self):
+
+        subg = {'description': str(self.subgroup_description),
+                'conditions': {}}
+
+        for i in range(len(self.subgroup_description._selectors)):
+
+            condition = self.subgroup_description._selectors[i]
+
+            subg['conditions'].update({i: {'attribute_name': condition._attribute_name}})
+
+            if issubclass(type(condition), IntervalSelector):
+                subg['conditions'][i].update({'lower_bound': condition._lower_bound,
+                                           'upper_bound': condition._upper_bound})
+
+                selector_type = 'IntervalSelector'
+            elif issubclass(type(condition), EqualitySelector):
+                subg['conditions'][i].update({'attribute_value': condition._attribute_value})
+
+                selector_type = 'EqualitySelector'
+
+            subg['conditions'][i].update({'selector_type': selector_type})
+
+        return subg
+
 
 def create_selectors(data, nbins=5, intervals_only=True, ignore=None):
     if ignore is None:
